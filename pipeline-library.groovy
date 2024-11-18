@@ -51,8 +51,18 @@ def call(Map config = [:]) {
                         writeFile(file: 'argocd-application.yaml', text: argocdApp)
                         echo "ArgoCD Application YAML created for ${appName} in namespace ${appNamespace}."
 
+                        // Log in to OpenShift using credentials
+                        withCredentials([usernamePassword(credentialsId: config.ocpCredentialsId ?: 'openshift-credentials', 
+                                                          usernameVariable: 'OCP_USER', 
+                                                          passwordVariable: 'OCP_PASSWORD')]) {
+                            // Login to OpenShift using oc command
+                            sh "oc login --username=$OCP_USER --password=$OCP_PASSWORD --server=${config.ocpServer ?: 'https://api.openshift.example.com:6443'}"
+                            echo "Logged in to OpenShift as $OCP_USER."
+                        }
+
                         // Apply the ArgoCD application using OpenShift CLI
                         sh "oc apply -f argocd-application.yaml"
+                        echo "ArgoCD application applied successfully."
                     }
                 }
             }
