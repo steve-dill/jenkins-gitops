@@ -1,0 +1,5 @@
+@Library('pipelineLibrary@main') _
+
+pipelineLibrary(
+    helmValuesPath: 'values.yml'
+)
